@@ -2,4 +2,3 @@ __pycache__
 mnist_data
 *.png
 *.ipynb
-*.md
