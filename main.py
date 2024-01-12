@@ -51,7 +51,7 @@ if __name__ == '__main__':
         y[i,train_labels[i]] = 1
     batch_size = 2
     myNet = LeNet5(batch_size)
-    myNet.train(train_images, y, 20, 0.5)
+    myNet.train(train_images, y, 1, 0.5)
     answer = myNet.predict(train_images[0:5])
     print(answer)
     print(train_labels[0:5])
