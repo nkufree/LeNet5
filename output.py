@@ -34,5 +34,5 @@ class Output:
         input_grade = np.zeros(self.input_size, dtype=np.float32)
         for i in range(self.input_size):
             for j in range(self.output_size):
-                        input_grade[i] -= input[j] * 2 * (self.input[i] - self.weight[j][i])
+                input_grade[i] -= input[j] * 2 * (self.input[i] - self.weight[j][i])
         return input_grade

@@ -26,9 +26,6 @@ class Conv:
         # 使用爱因斯坦求和约定计算卷积
         self.output = np.einsum('ijklm,pilm->pjk', split_input, self.filters)\
             + self.bias.repeat(row * col).reshape(self.output_shape)
-        # 计算sigmoid，为了防止溢出，在数小于-100时认为该值为0
-        # sigmoid = np.frompyfunc(lambda x:0 if x < -100 else 1/(1+exp(-x)),1,1)
-        # self.output = sigmoid(self.output).astype(np.float32)
         self.output = 1 / (1 + np.exp(-self.output))
         self.output_shape = self.output.shape
         return self.output
@@ -63,44 +60,3 @@ class Conv:
     def split_by_stride(self, input, shape):
         strides = (*input.strides[:-2], input.strides[-2]*self.stride, input.strides[-1]*self.stride, *input.strides[-2:])
         return np.lib.stride_tricks.as_strided(input, shape=shape, strides=strides)
-
-class Conv3(Conv):
-    # def __init__(self, input_shape, kernel_size, kernel_num) -> None:
-    #     super().__init__(input_shape, kernel_size, kernel_num)
-    #     self.output_shape = (16,self.output_shape[1],self.output_shape[2])
-    
-    def forward(self, input):
-        self.split_input = self.split_by_stride(input)
-        _, _, row, col = self.output_shape
-        self.output = None
-        # 第一轮计算
-        for i in range(6):
-            slice_calc = [(i+j) % 6 for j in range(3)]
-            tmp = np.einsum('nijklm,pilm->npjk', self.split_input[:,slice_calc,:,:], self.filters[i:i+1,slice_calc,:,:])\
-                + self.bias[i:i+1].repeat(row * col).reshape((1,1,row,col))
-            if self.output is None:
-                self.output = tmp
-            else:
-                self.output = np.concatenate((self.output, tmp), axis=1)
-        # 第二轮计算
-        for i in range(6):
-            slice_calc = [(i+j) % 6 for j in range(4)]
-            tmp = np.einsum('nijklm,pilm->npjk', self.split_input[:,slice_calc,:,:], self.filters[i+6:i+7,slice_calc,:,:])\
-                + self.bias[i+6:i+7].repeat(row * col).reshape((1,1,row,col))
-            self.output = np.concatenate((self.output, tmp), axis=1)
-        # 第三轮计算
-        for i in range(3):
-            slice_calc = [(i+j) % 6 for j in [0,1,3,4]]
-            tmp = np.einsum('nijklm,pilm->npjk', self.split_input[:,slice_calc,:,:], self.filters[i+12:i+13,slice_calc,:,:])\
-                + self.bias[i+12:i+13].repeat(row * col).reshape((1,1,row,col))
-            self.output = np.concatenate((self.output, tmp), axis=1)
-        # 第四轮计算
-        tmp = np.einsum('nijklm,pilm->npjk', self.split_input, self.filters[15:])\
-            + self.bias[15:].repeat(row * col).reshape((1,1,row,col))
-        self.output = np.concatenate((self.output, tmp), axis=1)
-        sigmoid = np.frompyfunc(lambda x:0 if x < -100 else 1/(1+exp(-x)),1,1)
-        self.output = sigmoid(self.output).astype(np.float32)
-        return self.output
-    
-    def backprop(self, input, alpha):
-        pass

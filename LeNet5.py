@@ -17,8 +17,6 @@ class LeNet5:
             .add(Conv((16,5,5),5,120))\
             .add(Connect(120,84))\
             .add(Output(84,10))
-        # self.add(Connect(1024,84))\
-        #     .add(Output(84,10))
     
     def add(self, net):
         self.networks.append(net)
@@ -43,19 +41,34 @@ class LeNet5:
         return preds
     
     def train(self, train_data: np.ndarray, y, iter=100, alpha=0.1):
-        
+        y_arg = np.argmax(y, axis=1)
         loss = []
+        acc = []
         total_num = train_data.shape[0]
         for i in range(iter):
-            for j in range(total_num // 10):
-                score = self.forward(train_data[j]).T
+            curr_loss = 0
+            for data, label in zip(train_data, y):
+                if random.random() > self.batch_size / total_num:
+                    continue
+                score = self.forward(data).T
                 # print(score)
                 score -= np.max(score)
                 exp_score = np.exp(score)
                 p = exp_score / np.sum(exp_score)
                 func = np.frompyfunc(lambda x:x if x != 0 else 1e-20,1,1)
                 p = func(p).astype(np.float32).T
-                f = -np.sum(y[j]*np.log(p))
-                loss.append(f)
-                print(f)
-                self.backprop(p-y[j] , alpha)
+                f = -np.sum(label*np.log(p))
+                curr_loss += f
+                # print(f)
+                self.backprop(p-label , alpha)
+            # 保存平均损失率
+            loss.append(curr_loss / total_num)
+            # 计算在训练集上的准确率
+            preds = self.predict(train_data)
+            curr_acc = 0
+            for a, b in zip(preds, y_arg):
+                if a == b:
+                    curr_acc += 1
+            acc.append(curr_acc / total_num)
+            print(f"epoch:{i+1}\tloss:{format(loss[-1], '.5f')}\tacc:{format(acc[-1], '.5f')}")
+        return loss, acc

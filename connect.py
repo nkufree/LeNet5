@@ -12,14 +12,6 @@ class Connect:
         self.input = input.reshape((-1,))
         self.output = np.einsum('i,ij->j',self.input,self.weight)\
             + self.bias
-        # output = np.zeros(self.output_size, dtype=np.float32)
-        # for i in range(self.output_size):
-        #     for j in range(self.input_size):
-        #         output[i] += self.weight[i][j] * self.input[j]
-        #     output[i] += self.bias[i]
-        #     output[i] = 1/(1+exp(-output[i]))
-        # sigmoid = np.frompyfunc(lambda x:0 if x < -100 else 1/(1+exp(-x)),1,1)
-        # self.output = sigmoid(self.output).astype(np.float32)
         self.output = 1 / (1 + np.exp(-self.output))
         return self.output
     

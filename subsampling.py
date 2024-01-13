@@ -23,17 +23,9 @@ class Subsampling:
         C, row, col = self.output_shape
         self.output = np.einsum('ijklm,i->ijk', self.split_input, self.filters)\
             + self.bias.repeat(row * col).reshape(self.output_shape)
-        # sigmoid = np.frompyfunc(lambda x:0 if x < -100 else 1/(1+exp(-x)),1,1)
-        # self.output = sigmoid(self.output).astype(np.float32)
         self.output = 1 / (1 + np.exp(-self.output))
         self.output_shape = self.output.shape
         return self.output
-        # output = np.zeros(self.output_shape, dtype=np.float32)
-        # for i in range(self.output_shape[0]):
-        #     for j in range(self.output_shape[1]):
-        #         for k in range(self.output_shape[2]):
-        #             output[i][j][k] = np.sum(input[i][j:j+self.kernel_size,k:k+self.kernel_size]) * self.weight[i] + self.bias[i]
-        # return output
 
     def backprop(self, input: np.ndarray, alpha):
         input = input.reshape(self.output_shape)
@@ -45,8 +37,6 @@ class Subsampling:
         input_grade:np.ndarray = np.einsum('cij,c->cij', input, self.filters)
         input_grade = input_grade.repeat(self.kernel_size, axis=1).repeat(self.kernel_size, axis=2)
         # 对权重的导数
-        # split_net_input = self.split_by_stride(self.input, (in_c, self.kernel_size, self.kernel_size, H, W))
-        # weight_grade = np.einsum('ijklm,clm->c', split_net_input, input)
         weight_grade = np.einsum('crlij,crl->c', self.split_input, input)
         self.filters -= weight_grade * alpha
         # 对偏置项的导数

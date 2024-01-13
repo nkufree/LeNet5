@@ -2,7 +2,7 @@ import numpy as np
 import struct
 import os
 from LeNet5 import LeNet5
-import pickle
+import json
 
 def load_mnist(file_dir, is_images='True'):
     # Read binary data
@@ -49,10 +49,19 @@ if __name__ == '__main__':
     y = np.zeros((train_images.shape[0],10))
     for i in range(train_images.shape[0]):
         y[i,train_labels[i]] = 1
-    batch_size = 2
+    batch_size = 6000
     myNet = LeNet5(batch_size)
-    myNet.train(train_images, y, 1, 0.5)
-    answer = myNet.predict(train_images[0:5])
-    print(answer)
-    print(train_labels[0:5])
+    loss, acc = myNet.train(train_images, y, 20, 0.5)
+    answer = myNet.predict(train_images)
+    # print(answer)
+    # print(train_labels[0:5])
     # print(res)
+    success_num = 0
+    for a, b in zip(answer, train_labels):
+        if a == b:
+            success_num += 1
+    print("在测试集上的准确率为：", success_num / train_images.shape[0])
+    with open("loss.json", "w+", encoding="utf-8") as f:
+        json.dump(loss, f)
+    with open("acc.json", "w+", encoding="utf-8") as f:
+        json.dump(acc, f)
