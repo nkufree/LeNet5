@@ -23,7 +23,15 @@ class Conv:
         C, H, W = self.input_shape
         _, row, col = self.output_shape
         split_input = self.split_by_stride(input,(C, row, col, self.kernel_size, self.kernel_size))
-        # 使用爱因斯坦求和约定计算卷积
+        '''
+        使用爱因斯坦求和约定计算卷积
+        i -> 通道数
+        j -> 输出的行数
+        k -> 输出的列数
+        p -> 卷积核个数（输出通道数）
+        l -> 卷积核的行
+        m -> 卷积核的列
+        '''
         self.output = np.einsum('ijklm,pilm->pjk', split_input, self.filters)\
             + self.bias.repeat(row * col).reshape(self.output_shape)
         self.output = 1 / (1 + np.exp(-self.output))

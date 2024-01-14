@@ -3,6 +3,9 @@ import struct
 import os
 from LeNet5 import LeNet5
 import json
+import warnings
+
+warnings.filterwarnings("ignore")
 
 def load_mnist(file_dir, is_images='True'):
     # Read binary data
@@ -34,6 +37,26 @@ def load_data(mnist_dir, train_data_dir, train_label_dir, test_data_dir, test_la
     test_labels = load_mnist(os.path.join(mnist_dir, test_label_dir), False)
     return train_images, train_labels, test_images, test_labels
 
+
+def train(net:LeNet5, train_images, y, iter=20, alpha=0.5):
+    loss, acc = myNet.train(train_images, y, iter, alpha)
+    with open("loss.json", "w+", encoding="utf-8") as f:
+        json.dump(loss, f)
+    with open("acc.json", "w+", encoding="utf-8") as f:
+        json.dump(acc, f)
+
+def test(net:LeNet5, test_images, test_labels):
+    # 在测试集上测试
+    answer = myNet.predict(test_images)
+    # print(answer)
+    # print(train_labels[0:5])
+    # print(res)
+    success_num = 0
+    for a, b in zip(answer, test_labels):
+        if a == b:
+            success_num += 1
+    print("在测试集上的准确率为：", success_num / test_images.shape[0])
+
 mnist_dir = "mnist_data/"
 train_data_dir = "train-images-idx3-ubyte"
 train_label_dir = "train-labels-idx1-ubyte"
@@ -51,17 +74,9 @@ if __name__ == '__main__':
         y[i,train_labels[i]] = 1
     batch_size = 6000
     myNet = LeNet5(batch_size)
-    loss, acc = myNet.train(train_images, y, 20, 0.5)
-    answer = myNet.predict(train_images)
-    # print(answer)
-    # print(train_labels[0:5])
-    # print(res)
-    success_num = 0
-    for a, b in zip(answer, train_labels):
-        if a == b:
-            success_num += 1
-    print("在测试集上的准确率为：", success_num / train_images.shape[0])
-    with open("loss.json", "w+", encoding="utf-8") as f:
-        json.dump(loss, f)
-    with open("acc.json", "w+", encoding="utf-8") as f:
-        json.dump(acc, f)
+    # 训练
+    train(myNet, train_images, y)
+    myNet.dump('model.pkl')
+    # 测试
+    myNet.load('model.pkl')
+    test(myNet, test_images, test_labels)
