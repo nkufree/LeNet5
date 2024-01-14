@@ -2,7 +2,9 @@
 
 南开大学 机器学习（谢晋老师） EX2（大作业）2023年秋
 
-实验要求：手搓LeNet5神经网络
+## 实验要求
+
+在这个练习中，需要使用 Python 实现 LeNet5 来完成对 MNIST 数据集中 0-9 共 10 个手写数字的分类。代码只能使用 Python 实现，其中数据读取可使用 PIL、opencv-python 等库，矩阵运算可使用 numpy 等计算库，网络前向传播和梯度反向传播需要手动实现，不能使用PyTorch、TensorFlow、Jax 或 Caffe 等自动微分框架。MNIST 数据集可在 http://yann.lecun.com/exdb/mnist/下载。
 
 ## 网络结构
 
