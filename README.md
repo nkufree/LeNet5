@@ -4,7 +4,7 @@
 
 ## 实验要求
 
-在这个练习中，需要使用`Python`实现`LeNet5`来完成对MNIST数据集中0-9共10个手写数字的分类。代码只能使用Python实现，其中数据读取可使用PIL、opencv-python等库，矩阵运算可使用`numpy`等计算库，网络前向传播和梯度反向传播需要手动实现，不能使用PyTorch、TensorFlow、Jax或Caffe等自动微分框架。MNIST数据集可在 http://yann.lecun.com/exdb/mnist/下载。
+在这个练习中，需要使用`Python`实现`LeNet5`来完成对MNIST数据集中0-9共10个手写数字的分类。代码只能使用Python实现，其中数据读取可使用PIL、opencv-python等库，矩阵运算可使用`numpy`等计算库，网络前向传播和梯度反向传播需要手动实现，不能使用PyTorch、TensorFlow、Jax或Caffe等自动微分框架。MNIST数据集可在 http://yann.lecun.com/exdb/mnist/ 下载。
 
 ## 网络结构
 
